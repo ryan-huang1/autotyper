@@ -1,8 +1,14 @@
 import time
 import random
 import pyautogui
+import json
 
-def type_out_paragraph(paragraph, wps=10, typo_chance=0.05, long_pause_chance=0.02, min_word_pause=0.05, max_word_pause=0.15, sentence_pause_min=0.5, sentence_pause_max=1.5):
+def load_typing_statistics(file_path):
+    with open(file_path, 'r') as file:
+        stats = json.load(file)
+    return stats
+
+def type_out_paragraph(paragraph, wps, typo_chance, long_pause_chance, min_word_pause, max_word_pause, sentence_pause_min, sentence_pause_max):
     """
     Types out a given paragraph with natural typing delays, typos, and corrections.
 
@@ -47,7 +53,7 @@ def type_out_paragraph(paragraph, wps=10, typo_chance=0.05, long_pause_chance=0.
 
     pyautogui.typewrite('\n\n')  # Add two newlines at the end of each paragraph for an empty line between paragraphs
 
-def type_out_paragraphs(paragraphs, wps=10, typo_chance=0.05, long_pause_chance=0.02, min_word_pause=0.05, max_word_pause=0.15, sentence_pause_min=0.5, sentence_pause_max=1.5):
+def type_out_paragraphs(paragraphs, wps, typo_chance, long_pause_chance, min_word_pause, max_word_pause, sentence_pause_min, sentence_pause_max):
     """
     Types out a list of paragraphs with natural typing delays, typos, and corrections.
 
@@ -72,14 +78,17 @@ def main():
     # Split content into paragraphs, handling line breaks correctly
     paragraphs = content.split('\n\n')
 
-    # Default typing settings
-    wps = 85  # Words per second typing speed
-    typo_chance = 0.05
-    long_pause_chance = 0.02
-    min_word_pause = 0.05
-    max_word_pause = 0.15
-    sentence_pause_min = 0.5
-    sentence_pause_max = 0.8
+    # Load typing statistics from JSON file
+    stats = load_typing_statistics('typing_statistics.json')
+
+    # Extracting realistic typing settings from the stats
+    wps = stats['typing_speed'][0] if stats['typing_speed'] else 85  # Words per minute typing speed
+    typo_chance = stats['total_typos'] / (stats['total_words'] * 5) if stats['total_words'] else 0.05
+    long_pause_chance = 0.02  # You can derive this from the pause statistics if desired
+    min_word_pause = min(stats['pause_after_word']) if stats['pause_after_word'] else 0.05
+    max_word_pause = max(stats['pause_after_word']) if stats['pause_after_word'] else 0.15
+    sentence_pause_min = min(stats['pause_after_sentence']) if stats['pause_after_sentence'] else 0.5
+    sentence_pause_max = max(stats['pause_after_sentence']) if stats['pause_after_sentence'] else 1.5
 
     # Give yourself a few seconds to focus the target application window
     time.sleep(5)
