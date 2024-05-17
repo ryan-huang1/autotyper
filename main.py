@@ -2,7 +2,7 @@ import time
 import random
 import pyautogui
 
-def type_out_paragraph(paragraph, wps=3, typo_chance=0.05, long_pause_chance=0.02):
+def type_out_paragraph(paragraph, wps=10, typo_chance=0.05, long_pause_chance=0.02, min_word_pause=0.05, max_word_pause=0.15, sentence_pause_min=0.5, sentence_pause_max=1.5):
     """
     Types out a given paragraph with natural typing delays, typos, and corrections.
 
@@ -10,6 +10,10 @@ def type_out_paragraph(paragraph, wps=3, typo_chance=0.05, long_pause_chance=0.0
     :param wps: Words per second typing speed.
     :param typo_chance: Probability of making a typo.
     :param long_pause_chance: Probability of a longer thinking pause.
+    :param min_word_pause: Minimum pause between words.
+    :param max_word_pause: Maximum pause between words.
+    :param sentence_pause_min: Minimum pause after a sentence.
+    :param sentence_pause_max: Maximum pause after a sentence.
     """
     words = paragraph.split()
     word_delay = 1 / wps
@@ -32,18 +36,18 @@ def type_out_paragraph(paragraph, wps=3, typo_chance=0.05, long_pause_chance=0.0
             
             # Add different delays based on the character
             if char in ".!?":
-                time.sleep(random.uniform(0.5, 1.0) * word_delay)  # Longer pause at the end of sentences
+                time.sleep(random.uniform(sentence_pause_min, sentence_pause_max))  # Longer pause at the end of sentences
             elif char in ",;":
                 time.sleep(random.uniform(0.3, 0.5) * word_delay)  # Medium pause for commas and semicolons
             else:
                 time.sleep(word_delay / len(word))
         
         pyautogui.typewrite(' ')  # Add space after each word
-        time.sleep(word_delay)  # Delay between words
+        time.sleep(random.uniform(min_word_pause, max_word_pause))  # Random pause between words
 
-    print()  # Move to the next line after the paragraph is typed out.
+    pyautogui.typewrite('\n\n')  # Add two newlines at the end of each paragraph for an empty line between paragraphs
 
-def type_out_paragraphs(paragraphs, wps=3, typo_chance=0.05, long_pause_chance=0.02):
+def type_out_paragraphs(paragraphs, wps=10, typo_chance=0.05, long_pause_chance=0.02, min_word_pause=0.05, max_word_pause=0.15, sentence_pause_min=0.5, sentence_pause_max=1.5):
     """
     Types out a list of paragraphs with natural typing delays, typos, and corrections.
 
@@ -51,27 +55,35 @@ def type_out_paragraphs(paragraphs, wps=3, typo_chance=0.05, long_pause_chance=0
     :param wps: Words per second typing speed.
     :param typo_chance: Probability of making a typo.
     :param long_pause_chance: Probability of a longer thinking pause.
+    :param min_word_pause: Minimum pause between words.
+    :param max_word_pause: Maximum pause between words.
+    :param sentence_pause_min: Minimum pause after a sentence.
+    :param sentence_pause_max: Maximum pause after a sentence.
     """
     for paragraph in paragraphs:
-        type_out_paragraph(paragraph, wps, typo_chance, long_pause_chance)
-        time.sleep(1)  # Delay between paragraphs for readability.
+        type_out_paragraph(paragraph, wps, typo_chance, long_pause_chance, min_word_pause, max_word_pause, sentence_pause_min, sentence_pause_max)
+        time.sleep(1)  # Delay between paragraphs for readability
 
 def main():
-    # Example usage
-    paragraphs = [
-        "Once upon a time in a land far, far away, there lived a wise old owl.\n\n",
-        "The owl was known throughout the kingdom for its knowledge and wisdom.\n\n",
-        "People from all over would come to seek the owl's advice on various matters.\n\n"
-    ]
+    # Load text from a file
+    with open('textfile.txt', 'r') as file:
+        content = file.read()
+
+    # Split content into paragraphs, handling line breaks correctly
+    paragraphs = content.split('\n\n')
 
     # Default typing settings
-    wps = 60  # Words per second typing speed
+    wps = 85  # Words per second typing speed
     typo_chance = 0.05
     long_pause_chance = 0.02
+    min_word_pause = 0.05
+    max_word_pause = 0.15
+    sentence_pause_min = 0.5
+    sentence_pause_max = 0.8
 
     # Give yourself a few seconds to focus the target application window
     time.sleep(5)
-    type_out_paragraphs(paragraphs, wps, typo_chance, long_pause_chance)
+    type_out_paragraphs(paragraphs, wps, typo_chance, long_pause_chance, min_word_pause, max_word_pause, sentence_pause_min, sentence_pause_max)
 
 if __name__ == "__main__":
     main()
