@@ -2,6 +2,7 @@ import time
 import random
 import pyautogui
 import json
+from tqdm import tqdm
 
 def load_typing_statistics(file_path):
     with open(file_path, 'r') as file:
@@ -24,7 +25,7 @@ def type_out_paragraph(paragraph, wps, typo_chance, long_pause_chance, min_word_
     words = paragraph.split()
     word_delay = 1 / wps
 
-    for word in words:
+    for word in tqdm(words, desc="Typing words", leave=False):
         for char in word:
             # Introduce thinking pauses
             if random.random() < long_pause_chance and char not in ".!?":
@@ -66,7 +67,7 @@ def type_out_paragraphs(paragraphs, wps, typo_chance, long_pause_chance, min_wor
     :param sentence_pause_min: Minimum pause after a sentence.
     :param sentence_pause_max: Maximum pause after a sentence.
     """
-    for paragraph in paragraphs:
+    for paragraph in tqdm(paragraphs, desc="Typing paragraphs"):
         type_out_paragraph(paragraph, wps, typo_chance, long_pause_chance, min_word_pause, max_word_pause, sentence_pause_min, sentence_pause_max)
         time.sleep(1)  # Delay between paragraphs for readability
 
